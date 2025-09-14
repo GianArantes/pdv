@@ -5,6 +5,8 @@ import java.util.UUID;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +22,11 @@ public class VendaItem {
     @GeneratedValue(generator = "UUID")
     private UUID id;
     private Integer quantidade;
+    @ManyToOne
+    @JoinColumn(name = "produto_id")
     private Produto produto;
+    @ManyToOne
+    @JoinColumn(name = "venda_id")
     private Venda venda;
     private BigDecimal precoUnitario;
     private BigDecimal desconto;

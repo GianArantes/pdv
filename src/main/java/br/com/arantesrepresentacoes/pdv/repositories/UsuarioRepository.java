@@ -2,10 +2,14 @@ package br.com.arantesrepresentacoes.pdv.repositories;
 
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 import br.com.arantesrepresentacoes.pdv.entities.Usuario;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, UUID>{
+public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
+
+    public UserDetails findByEmail(String email);
+    
 
 }

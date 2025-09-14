@@ -8,4 +8,6 @@ import br.com.arantesrepresentacoes.pdv.entities.Ncm;
 @Repository
 public interface NcmRepository extends JpaRepository<Ncm, UUID> {
 
+    public Ncm findNcmByCodigo(String codigo);
+
 }
