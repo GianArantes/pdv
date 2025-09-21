@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" th:replace="~{_layout :: layout(~{::title}, ~{::content})}">
+
+<head>
+    <title>Formulário de NCM</title>
+</head>
+
+<body>
+    <div th:fragment="content">
+        <h1>Formulário de NCM</h1>
+        <form th:action="@{/ncms/salvar}" th:object="${ncm}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <div class="mb-3">
+                <label for="codigo" class="form-label">Código</label>
+                <input type="text" class="form-control" id="codigo" th:field="*{codigo}" required>
+                <label for="descricao" class="form-label">Descrição</label>
+                <input type="text" class="form-control" id="descricao" th:field="*{descricao}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+
+        <div th:if="${ncm.id != null}">
+            <hr>
+            <h2>Alíquotas por Estado</h2>
+            <a th:href="@{/ncms-estados/novo/{ncmId}(ncmId=${ncm.id})}" class="btn btn-success mb-3">Adicionar
+                Alíquota</a>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>Alíquota (%)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="aliquota : ${aliquotas}">
+                        <td th:text="${aliquota.estado}"></td>
+                        <td th:text="${aliquota.aliquota}"></td>
+                        <td>
+                            <a th:href="@{/ncms-estados/editar/{id}(id=${aliquota.id})}" class="btn btn-warning btn-sm">Editar</a>
+                            <a th:href="@{/ncms-estados/excluir/{id}(id=${aliquota.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

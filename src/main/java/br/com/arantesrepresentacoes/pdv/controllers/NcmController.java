@@ -1,42 +1,74 @@
 package br.com.arantesrepresentacoes.pdv.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
-import br.com.arantesrepresentacoes.pdv.dto.NcmDTO;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import br.com.arantesrepresentacoes.pdv.entities.Ncm;
+import br.com.arantesrepresentacoes.pdv.entities.NcmAliquotaEstado;
+import br.com.arantesrepresentacoes.pdv.repositories.NcmAliquotaEstadoRepository;
 import br.com.arantesrepresentacoes.pdv.repositories.NcmRepository;
 
-@RestController
-@RequestMapping("/produtos/ncm")
+@Controller
+@RequestMapping("/ncms")
 public class NcmController {
 
     @Autowired
-    NcmRepository ncmRepository;
+    private NcmRepository ncmRepository;
 
-    public ResponseEntity<Ncm> cadastrarNcm(@RequestBody NcmDTO ncmDTO) {
-        Ncm novoNcm = new Ncm(ncmDTO.codigo());
-        ncmRepository.save(novoNcm);
-        return ResponseEntity.ok(novoNcm);
+    @Autowired
+    private NcmAliquotaEstadoRepository ncmAliquotaEstadoRepository;
+
+    @GetMapping("/listar")
+    public String listar(Model model, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+        model.addAttribute("ncms", ncmRepository.findAll());
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            return "lista-ncms :: content";
+        }
+        return "lista-ncms";
     }
 
-    public ResponseEntity<Ncm> localizaPeloCodigo(String ncmCodigo) {
-        Ncm ncm = ncmRepository.findNcmByCodigo(ncmCodigo);
-        return ResponseEntity.ok(ncm);
-
+    @GetMapping("/novo")
+    public String novo(Model model, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+        model.addAttribute("ncm", new Ncm());
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            return "form-ncm :: content";
+        }
+        return "form-ncm";
     }
 
-    public ResponseEntity<List<NcmDTO>> listarNcms() {
-        List<NcmDTO> listaNcms = ncmRepository.findAll().stream().map(ncm -> new NcmDTO(ncm.getCodigo())).toList();
+    @GetMapping("/editar/{id}")
+    public String editar(@PathVariable UUID id, Model model, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+        Ncm ncm = ncmRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("NCM inválido:" + id));
+        model.addAttribute("ncm", ncm);
 
-
-        return ResponseEntity.ok(listaNcms);
+        List<NcmAliquotaEstado> aliquotas = ncmAliquotaEstadoRepository.findByNcm(ncm);
+        aliquotas.sort((a, b) -> a.getEstado().compareTo(b.getEstado()));
+        model.addAttribute("aliquotas", aliquotas);
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            return "form-ncm :: content";
+        }
+        return "form-ncm";
     }
 
+    @PostMapping("/salvar")
+    public String salvar(Ncm ncm) {
+        ncmRepository.save(ncm);
+        return "redirect:/ncms/listar";
+    }
 
+    @GetMapping("/excluir/{id}")
+    public String excluir(@PathVariable UUID id) {
+        ncmRepository.deleteById(id);
+        return "redirect:/ncms/listar";
+    }
 }

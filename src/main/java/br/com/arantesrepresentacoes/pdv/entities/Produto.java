@@ -1,9 +1,7 @@
 package br.com.arantesrepresentacoes.pdv.entities;
-
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,18 +20,16 @@ import lombok.Setter;
 public class Produto {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String nome;
-    private Double precoBase;
     private Double peso;
     @ManyToOne
     @JoinColumn(name = "ncm_id")
     private Ncm ncm;
 
-    public Produto(String nome, Double precoBase, Double peso, Ncm ncm) {
+    public Produto(String nome, Double peso, Ncm ncm) {
         this.nome = nome;
-        this.precoBase = precoBase;
         this.peso = peso;
         this.ncm = ncm;
     }

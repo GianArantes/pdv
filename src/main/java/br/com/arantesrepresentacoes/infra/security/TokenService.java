@@ -52,8 +52,7 @@ public class TokenService {
                     .getSubject();
 
         } catch (JWTVerificationException exception) {
-            // throw new RuntimeException("Token inválido ou expirado", exception);
-            return "";
+            throw new RuntimeException("Token inválido ou expirado", exception);
         }
     }
 
